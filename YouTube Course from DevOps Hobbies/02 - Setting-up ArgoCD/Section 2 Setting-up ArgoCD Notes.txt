@@ -1,0 +1,37 @@
+Install and configure ArgoCD in few methods.
+
+1st method - useing cubectl, applying ArgoCD manifest
+2nd methid - using Helm
+3th method - using nginx ingress controller
+
+
+We will use resources on https://killercoda.com/. Login with GitHub and go to the site we will go true the cases: https://killercoda.com/mabusaa/course/argocd-endusers-scenarios
+
+
+CREATE INFRASTRUCTURE ENVIRONMENT
+=================================
+
+We will work on Ubuntu
+We must install Docker, Go, Kubernetes, Helm and Kind. Docker is image managing software. Go is programming language. Kind is Kubernetes CLI manager.
+
+Docker: download & install - https://docs.docker.com/get-started/get-docker/
+Go: download & install - https://go.dev/
+Kind repo: https://github.com/kubernetes-sigs/kind?tab=readme-ov-file
+
+Install Kind:
+	terminal --> curl.exe -Lo kind-windows-amd64.exe https://kind.sigs.k8s.io/dl/v0.30.0/kind-windows-amd64
+Move-Item .\kind-windows-amd64.exe c:\some-dir-in-your-PATH\kind.exe
+
+
+
+
+
+
+
+
+
+
+
+
+
+
