@@ -1,0 +1,120 @@
+Video - https://www.youtube.com/watch?v=c1sOAdQx91U
+
+Why use ArgoCD?
+	- Easy GitOps deployments
+	- Syncs app with Git automatically
+	- Visualize app status and history
+
+Benefits:
+	- Less manual work
+	- Built-in security and audit
+	- Faster, safer releases
+	- More reliable systems
+
+
+
+Why use Kubernetes
+	- Faster time to market
+ 	- Improve reliability
+	- Better resource efficiency
+	- Enhanced developer productivity
+
+
+What is Git?
+	- Track file versions over time
+	- Save snap shots for your files
+	- Support branches for parallel work
+
+
+Project States - Desired State vs Actual State
+----------------------------------------------
+
+1. Desired State:
+	- Desired project state
+	- Stored in Git
+	- Source of truth
+
+2. Actual State:
+	- Shows project's current status
+	- Also called 'observed state'
+
+
+ArgoCD look over the states and if there is difference (Git repo is not in sync with the Kubernetes cluster app) and fix it - deploy the newer version of the app on the Kubernetes cluster.
+
+
+
+Key Benefits of Using GitOps
+	- More reliable deployments
+	- Built-in audit and security	
+	- Better team collaboration
+	- Easy rollback
+	- Less manual work
+
+	GitOps Guide - https://akuity.io/blog/getting-into-gitops
+
+
+Key Benefits of GitOps:
+	- Version-controlled infrastructure with Git
+	- Automated deployments using CI/CD pipelines
+	- Faster rollback & disaster recovery with immutable versioning
+	- Enhanced security & compliance with declarative configurations
+
+	- Webinar over GitOps - https://www.youtube.com/watch?time_continue=9&v=mlYW54JEoqg&embeds_referring_euri=https%3A%2F%2Fakuity.io%2F&source_ve_path=MjM4NTE
+
+Conclusion - Argo CD is a GitOps tool for Kubernetes deployments.
+-----------------------------------------------------------------
+
+
+Disect Argo CD
+--------------
+- User Interface (UI)
+- Application
+- Core
+- Infrastructure
+
+Look at the ArgoCD structure picture in the repo.
+
+
+Servers
+-------
+- API Server - Main way users and tools interact with ArgoCD
+- Repository Server - Handles Git access and prepares app manifests for deployment
+
+
+Image Updater and Dex
+---------------------
+- Image updater: Monitors Docker registries and auto-updates image tags in Git.
+- Dex: Delegates authentication to external providers like GitHub.
+See Image Updater and Dex.jpg image
+
+Controllers
+-----------
+- ArgoCD is a Kubernetes controller that watches apps and ensures the actual state matches the desired state.
+
+
+Best Practices
+==============
+Kubernetes Service Details:
+- Image Updater like function of ArgoCD is not production ready service. The stable image updater service is reached with Flux. Instead of Flux for image updater service we can use Kargo (https://kargo.io/). Kargo is more flexible than Flux. Give us not only image update but configuration update also (like Ansible).
+
+Kargo - https://kargo.io/
+
+
+ArgoCD is a integrated system in the Kubernetes clusters which may expose some security vulnerabilities - we need to give access to ArgoCD to manage the cluster.
+Akuity platform is a system that implement only a agent in every cluster and is not required to open access to outside system in Kubernetes. Easier to manage enterprise solution.
+
+
+If we deploy on Akuity Platform we will need:
+	- A Kubernetes cluster
+	- GitHub Account
+	- An Akuity Accoutn (30 days free)
+	- Repo: https://github.com/reikamoon/argo_cd_demo
+
+If we deploy ArgoCD on own Kubernetes cluster we need to use Helm or Kustomize.
+
+
+
+
+
+
+
