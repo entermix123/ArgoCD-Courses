@@ -112,9 +112,12 @@ If we deploy on Akuity Platform we will need:
 
 If we deploy ArgoCD on own Kubernetes cluster we need to use Helm or Kustomize.
 
+ArgoCD book - https://landing.akuity.io/resources/argo-cd-up-and-running
 
+GitOps Best practices web book - https://hs.akuity.io/hubfs/Marketing/gitops-best-practices-ebook.pdf
 
+ArgoCD repos - https://github.com/orgs/argoproj-labs/repositories?type=all
 
-
+GitOps Masterclass: Advanced Argo CD Application Configuration Patterns [Hands-On Workshop]: https://www.youtube.com/watch?v=aRKrDmqYLCE
 
 
