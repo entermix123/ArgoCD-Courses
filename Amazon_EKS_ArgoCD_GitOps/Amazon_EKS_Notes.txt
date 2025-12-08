@@ -1,0 +1,383 @@
+This video is true the Akuity platform and AWS. We use Visual Studio Code as eidtor.
+
+https://www.youtube.com/watch?v=_h2uGS2w7Hg
+Workshop link - https://catalog.us-east-1.prod.workshops.aws/workshops/64949cdb-0b3a-4f89-b58e-0e4efb3e46ed/en-US
+ArgoCD Ebook - https://landing.akuity.io/resources/argo-cd-up-and-running
+
+Prerequisite
+	- AWS CLI - interacting with AWS services
+	- kubectl - interacting with Kubernetes cluster
+	- git - source code management
+	- gh - GitHub CLI for repository operations
+	- helm - managing Kubernetes applications
+
+
+In VSCode:
+
+Login with GitHub account
+	terminal --> gh auth login
+
+Check GitHub status
+	terminal --> gh auth status
+
+Create a repo with Akuity template
+	terminal --> gh repo create eks-worksho[-template --template akuity/eks-workshop-template --clone --public
+
+Navigate into the repo
+	terminal --> cd eks-worksho[-template
+
+Create a Personal Access Token (PAT) for Kargo. Kargo needs to read from GitHub.
+	- Go to GitHub Settings/Access Tokens/Fine Graned Tokens and create a token
+		- Expiration: Set it for specific timeframe - 7-10 days, month ...
+		- Repository Access: Only select repositories (Set it for specific repository)
+			- select 'eks-worksho[-template', that we created earlier
+			- Permissions: 
+				Contents - Read and Write
+				Metadata - Read only (by default)
+		- Generate Token
+	
+Set the Token as ENV variable
+	terminal --> export KARGO_GH_TOKEN=$(gh auth token)
+
+Authenticate to AWS
+	terminal --> aws sts get-caller-identity
+
+	# result: We should see fields "UserId", "Account" and "Arn" with values.
+
+List aws Kubernetes clusters
+	terminal --> aws eks list-clusters
+	
+	# result: {"clusters": ["akuity-aws-cluster"]}
+
+
+Update Cluster configurations - kubeconfig
+	terminal --> aws eks update-kubeconfig --name akuity-aws-cluster
+
+Now we should have access to the nodes
+	terminal --> kubectl get nodes
+
+
+In the Akuity platform 
+	- Create ArgoCD instance.
+		- Name: workshop
+		- Version: 2.14.13
+		- Workspace: default
+		- Create
+
+	- Set system account password
+
+	- Copy the ArgoCD instance URL
+
+Login into ArgoCD on Akuity
+	- Login with username: admin and password
+
+
+Login to ArgoCD from CLI
+	terminal --> argocd login --grpc-web --username admin <ArgoCD instance URL>
+	terminal --> password
+	
+	# result: we should be logged in ArgoCD instance
+
+Connect cluster on Akuity platform
+	ArgoCD/Clusters/Connect a cluster
+		- Cluster name: eks-cluster
+		- Description (optional): cluster for the aws workshop
+		- Connect
+
+		- Copy the command for Akuity CLI: akuity login
+
+		In VSCode login into akuity
+			terminal --> akuity login
+
+			# result: we will be given link and code. Go to the link and confirm the device we are working with.
+
+
+
+		- Copy the command from "Get manifest to pipe it to kubectl": akuity agrocd cluster get-agent-manifests --org-idfi1i2r0porokrffw --instance-id=dsfsdfasfdasdf eks-cluster | kubectl apply -f -
+
+
+		In VSCode pipe it into kubectl
+			terminal --> akuity agrocd cluster get-agent-manifests --org-idfi1i2r0porokrffw --instance-id=dsfsdfasfdasdf eks-cluster | kubectl apply -f -
+	
+		# result: namespace/akuity created
+
+
+Confirm we are working on the correct cluster
+	terminal --> kubectl config current-context
+
+	# result: arn:aws:eks:us-east-1:123456789:cluster/akuity-aes-cluster
+
+List akuity pods and check if they are working
+	terminal --> kubectl get pods -n akuity
+
+	# result: we should have total of 8 pods and 7 different names of pods.
+
+
+In VSCode project we navigate to file eks-workshop-template/apps/guestbook-dev.yaml. We need to set our values to this template. This can be done shortl with one command as follow
+	terminal --> 
+# Replace placeholders with actual values using sed
+export WORKSHOP_REPO=$(gh repo view eks-workshop-template --json url | jq -r .url | awk -F'/' '{print $4"/"$5}')
+sed -i "s?<repo>?${WORKSHOP_REPO}?g" /workshop/eks-workshop-template/apps/guestbook-dev.yaml
+sed -i "s/demo/default/g" /workshop/eks-workshop-template/apps/guestbook-dev.yaml
+
+# Display the updated YAML file
+cat /workshop/eks-workshop-template/apps/guestbook-dev.yaml
+
+# result: We should see the updated repo file
+
+
+On Akuity platofm in Argocd UI add new app and set the configuration we made on VSCode on guestbook-dev.yaml
+	- + NEW APP
+	- EDIT AS YAML
+	- paste the guestbook-dev.yaml (we must be sure that repoURL is correct (with the username))
+	- CREATE
+
+
+Sync automatically from Akuity platform
+---------------------------------------
+On Akuity platform in ArgoCD UI we need to Sync our project with the cluster
+	- SYNC/SYNCHRONIZE
+	
+	# The deployment creates a ReplicaSet that creates a Pod
+	# The Service create and endpoint and EndpointSlice
+
+
+
+Sync manually from VSCode
+-------------------------
+Go on VSCode project /huestbook/values-dev.yaml
+
+/huestbook/values-dev.yaml
+---------------------------------------------------------
+service:
+  type: ClusterIP
+image: 
+  tag: 0.1.0
+---------------------------------------------------------
+
+- save changes
+
+Commit the changes to GitHub
+	terminal --> cd /workshop/eks-workshop-template
+	terminal --> git add gusetbook/values-dev.yaml
+	terminal --> git commit -m "Update guestbook image tag to 0.1.0"
+	terminal --> git push origin main
+
+
+Enable autosync and selfhealing
+-------------------------------
+
+Akuity platform:
+In ArgoCD UI / Details:
+	- SYNC POLICY: ENABLE AUTO SYNC
+	- OK
+	
+	- SELF HEAL / ENABLE
+	- OK
+
+
+With Git
+
+Go on VSCode project /huestbook/values-dev.yaml
+
+/huestbook/values-dev.yaml
+---------------------------------------------------------
+service:
+  type: ClusterIP
+image: 
+  tag: 0.1.0
+
+replicaCount: 2
+---------------------------------------------------------
+
+- save changes
+
+Commit the changes to GitHub
+	terminal --> cd /workshop/eks-workshop-template
+	terminal --> git add gusetbook/values-dev.yaml
+	terminal --> git commit -m "Update replicaCoutn to 2"
+	terminal --> git push origin main
+
+
+
+DEPLOY STAGIN AND PRODUCTION:
+-----------------------------
+	terminal -->
+# Replace placeholders with actual values using sed
+sed -i "s?<repo>?${WORKSHOP_REPO}?g" /workshop/eks-workshop-template/apps/guestbook-stg.yaml
+sed -i "s/demo/default/g" /workshop/eks-workshop-template/apps/guestbook-stg.yaml
+sed -i "s?/repo>?${}?g" /workshop/eks-workshop-template/apps/guestbook-prd.yaml
+sed -i "s/demo/default/g" /workshop/eks-workshop-template/apps/guestbook-prd.yaml
+
+Apply the ArgoCD Application YAMLs for staging and production
+	terminal --> argocd app create -f /workshop/eks-workshop-template/apps/guestbook-stg.yaml
+	terminal --> argocd app create -f /workshop/eks-workshop-template/apps/guestbook-prd.yaml
+
+
+
+
+Promote with Kargo on AWS
+=========================
+
+Create a Kargo instace on Akuity platform
+-----------------------------------------
+Akuity/Promote/Kargo
+	- Create
+		- Name: my-kargo-instance
+		- Version: v1.5.1
+		- Workspace: default
+		- Create
+
+Register Kargo agent
+--------------------
+
+Enter the Kargo instance / Register an agent
+	- Agent name: my-agent
+	- Akuity Managed Argo CD Instance
+		- my-eks-workshop
+	- Connect
+
+
+Enable Admin Account
+--------------------
+
+Enter the Kargo Instance / Settings / System Accounts
+	- Enable
+	- set Password
+	- Save
+
+Login into Kargo CLI
+--------------------
+Enter the Kargo Instance. Once Kargo instance is created we should see URL for the Kargo instance. Click on it and eneter Kargo UI and enter the password.
+
+Login with the CLI
+Copy the URL for the Kargo instance. 
+	terminal --> source <(kargo completion bash)
+	terminal --> kargo login --admin <kargo URL instance> --password <password>
+
+
+Create a Kargo project in VSCode
+	terminal --> kargo create project kargo-guestbook
+
+	# result: project kargo.akuity.io/kargo-guestbook created
+
+Verify the project creation
+	terminal --> kargo get projects
+
+Create warehouse for Kargo
+--------------------------
+1. Create a GitHub Creadentials
+	VSCode terminal --> 
+kargo create credentials github-creadentials \
+--project kargo-questbook --git \
+--username $(gh api user | jq -r '.login') --password ${KARGO_GH_TOKEN} \
+--repo-url $(gh repo view eks-workshop-template --json url | jq -r .url)
+
+# result: secret/github-creadentials created
+
+Confirm github credentail creation
+	VSCode terminal --> kargo get credentials --project kargo-guestbook
+
+In the Kargo UI we can confirm the secrets cration in Project Settings / Secrets
+
+We can set up and apply declarative manifest file for project but we will skip this for now.
+
+
+2. Create a Warehouse
+
+We can see the used template in eks-workshop-template/kargo/warehouse.yaml
+
+warehouse.yaml
+---------------------------------------------------------
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Warehouse
+metadata:
+  name:base
+  namespace: kargo-guestbook
+spec:
+  subscriptions:
+  - git:
+      branch: main
+      commitSectionStrategy: NewestFromBranch
+      discoveryLimit: 20
+      repoURL: https://github.com/<repo>
+      includePaths:
+      - base/values.yaml
+---------------------------------------------------------
+
+Replace the repo URL in the template
+	terminal --> sed -i "s?<repo>?${WORKSHOP_REPO}?g" /workshop/eks-workshop-template/kargo/warehouse.yaml
+
+Apply the warehouse manifest file
+	terminal --> kargo apply -f ./kargo/warehouse.yaml
+	
+	# result: warehouse.kargo.akuity.io/base created
+
+In the Kargo UI we can see that diagram is created and the process is working.
+
+This warehouse is keeping track of the GitHub repository
+
+
+DEPLOY STAGIN AND PRODUCTION:
+-----------------------------
+
+Update stage.yaml template in the Kargo folder in the repo
+	terminal --> 
+sed -i "s?<repo>${WORKSHOP_REPO}?g" /workshop/eks-workshop-template/kargo/stages.yaml
+
+Apply the stage.yaml file
+	terminal --> karo apply -f ./kargo/stages.yaml
+
+	# result: 
+	storage.kargo.akuity.io/dev created
+	storage.kargo.akuity.io/stg created
+	storage.kargo.akuity.io/prd created
+
+The pipeline in the Kargo UI should be updated with the 3 stages - dev, stg and prd
+
+
+
+Creating a ReplicaSet with Kargo
+--------------------------------
+
+1. Navigate to base/values.yaml in your GitHub repository
+	open file eks-workshop-template/base/values.yaml
+
+2. Change the replicaSet value from 1 to 3
+	# add replicaCount: 3
+3. Save changes - Ctrl+s
+
+Add changes
+	terminal --> git add eks-workshop-template/base/values.yaml
+
+5. Commit changes 
+	terminal --> git commit cam "replicas to 3"
+
+6. Push changes
+	terminal --> git push origin main
+
+In Kargo UI refresh the "base". We should see second freaight (change) on the top of the explorer.
+
+
+Promote the dev stage
+---------------------
+Open Kargo UI and click the small bus icon in the top right corner of the dev pipe object (promote). Then select the newer freight (change) and click 'promote'. Kargo will execute the steps and increase the replicas to 3.
+
+!!! We cannot select the promotion if it is not successful on the previous environment!!! We can set to run verifications on external resources like traefic or cloudwach before promoting on the next environemnt.
+
+Promote the stg stage
+---------------------
+Open Kargo UI and click the small bus icon in the top right corner of the stg pipe object (promote). Then select the newer freight (change) and click 'promote'. Kargo will execute the steps and increase the replicas to 3.
+
+!!! We cannot select the promotion if it is not successful on the previous environment!!! We can set to run verifications on external resources like traefic or cloudwach before promoting on the next environemnt.
+
+Promote the prd stage
+---------------------
+Open Kargo UI and click the small bus icon in the top right corner of the prd pipe object (promote). Then select the newer freight (change) and click 'promote'. Kargo will execute the steps and increase the replicas to 3.
+
+We can follow the pipe in the Kargo UI.
+
+https://www.youtube.com/watch?v=_h2uGS2w7Hg
+Workshop link - https://catalog.us-east-1.prod.workshops.aws/workshops/64949cdb-0b3a-4f89-b58e-0e4efb3e46ed/en-US
+ArgoCD Ebook - https://landing.akuity.io/resources/argo-cd-up-and-running
+
