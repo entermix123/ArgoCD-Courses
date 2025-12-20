@@ -454,17 +454,17 @@ nodes:
         node-labels: "ingress-ready=true"
   extraPortMappings:
   - containerPort: 80
-    hostPort: 80
+    hostPort: 32073
     protocol: TCP
   - containerPort: 443
-    hostPort: 443
+    hostPort: 32074
     protocol: TCP
 - role: worker
 - role: worker
 -------------------------------------------------
 
 2. Create cluster 
-	terminal --> kind create cluster --config C:\path\to\file\kind-config.yaml --image kindest/node:v1.34.0
+	terminal --> kind create cluster --config C:\path\to\file\kind-config-nginx.yaml --image kindest/node:v1.34.0
 
 In case we want simple one node cluster we start it with:
 	terminal --> kind create cluster --name my-argocd-cluster --image kindest/node:v1.34.0
@@ -700,7 +700,7 @@ Before installing ArgoCD with nginx ingress controller we need to install nginx 
 
 
 Install ArgoCD with nginx ingress controller
-	terminal --> helm install argocd argo/argo-cd -f .\values-nginx.yaml -n argocd --create-namespace
+	terminal --> helm install argocd argo/argo-cd -f C:\Users\balab\Kubernetes_Kind_Projects\values-nginx.yaml -n argocd --create-namespace
 
 
 Confirm ArgoCD deployment
