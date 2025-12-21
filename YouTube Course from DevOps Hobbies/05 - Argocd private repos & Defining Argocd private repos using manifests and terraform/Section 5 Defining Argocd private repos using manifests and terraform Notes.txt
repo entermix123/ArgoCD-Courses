@@ -14,6 +14,14 @@ Video Agenda:
 15:34 Credential Templates
 20:55 Defining Private Repo Using Terraform
 
+
+Lab repo - https://github.com/devopshobbies/argocd-tutorial
+
+Notes Lab repo - https://github.com/entermix123/ArgoCD-Labs
+
+Killercoda exercise platform - https://killercoda.com/mabusaa/course/argocd-endusers-scenarios
+
+
 Create a private repository in GitHub for testing and add folder 'ArgoCD Labs\argocd-application\helm-charts\' from ArgoCD Labs repo - https://github.com/entermix123/ArgoCD-Labs/tree/main. This is a simple nginx application that we will use as example.
 
 

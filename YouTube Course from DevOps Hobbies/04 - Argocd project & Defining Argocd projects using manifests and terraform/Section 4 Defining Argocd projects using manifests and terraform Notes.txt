@@ -12,7 +12,14 @@ Video Agenda:
 00:55:35 Project roles and policies
 1:16:50 Defining projects using terraform
 
-Github: https://github.com/mohammadll
+Lab repo - https://github.com/devopshobbies/argocd-tutorial
+
+Notes Lab repo - https://github.com/entermix123/ArgoCD-Labs
+
+Killercoda exercise platform - https://killercoda.com/mabusaa/course/argocd-endusers-scenarios
+
+
+
 
 We will create and use new directory called '04-argocd-projects'.
 

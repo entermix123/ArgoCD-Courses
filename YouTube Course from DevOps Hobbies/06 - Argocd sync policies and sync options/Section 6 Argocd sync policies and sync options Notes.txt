@@ -18,6 +18,8 @@ Video Agenda:
 
 Lab repo - https://github.com/devopshobbies/argocd-tutorial
 
+Notes Lab repo - https://github.com/entermix123/ArgoCD-Labs
+
 Killercoda exercise platform - https://killercoda.com/mabusaa/course/argocd-endusers-scenarios
 
 

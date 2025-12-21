@@ -12,8 +12,13 @@ Video Agenda:
 00:38:09 Using Directory as The Source
 00:55:50 Creating Argocd Applications Using Terraform
 
+Lab repo - https://github.com/devopshobbies/argocd-tutorial
 
-DevOpsHobbies ArgoCD tutorials repo - https://github.com/devopshobbies/argocd-tutorial
+Notes Lab repo - https://github.com/entermix123/ArgoCD-Labs
+
+Killercoda exercise platform - https://killercoda.com/mabusaa/course/argocd-endusers-scenarios
+
+
 
 
 CREATE OUR FIRST ARGOCD APPLICATION
