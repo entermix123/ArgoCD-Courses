@@ -700,7 +700,7 @@ Before installing ArgoCD with nginx ingress controller we need to install nginx 
 
 
 Install ArgoCD with nginx ingress controller
-	terminal --> helm install argocd argo/argo-cd -f C:\Users\balab\Kubernetes_Kind_Projects\values-nginx.yaml -n argocd --create-namespace
+	terminal --> helm install argocd argo/argo-cd -f C:\Users\your_user\Kubernetes_Kind_Projects\values-nginx.yaml -n argocd --create-namespace
 
 
 Confirm ArgoCD deployment
