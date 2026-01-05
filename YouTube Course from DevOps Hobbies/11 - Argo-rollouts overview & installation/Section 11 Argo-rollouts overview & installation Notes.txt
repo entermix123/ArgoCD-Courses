@@ -10,6 +10,48 @@ Video Lab repo - https://github.com/devopshobbies/argocd-tutorial
 Killercoda exercise platform - https://killercoda.com/mabusaa/course/argocd-endusers-scenarios
 
 
+
+Prerequisites
+=============
+
+1. We should have installed and running ArgoCD on one of our clusters.
+----------------------------------------------------------------------
+
+We can find cluster and ArgoCD installation instruction in section "02 - Setting-up ArgoCD" and "08 - adding cluster & tracking strategies".
+
+
+2. Login to ArgoCD CLI:
+-----------------------
+
+Find the password of admin user of ArgoCD
+	powershell terminal --> k -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | ForEach-Object { [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($_)) }
+
+	# result: password
+
+
+Connect to the Node with ArgoCD CLI
+	terminal --> argocd login localhost:32074 --insecure --grpc-web --username admin --password Tip-kdHFNljqdnq3
+	or
+	terminal --> argocd login localhost:32074 --insecure --grpc-web --username admin
+	terminal --> password
+
+
+3. We should have 2 running and connected to ArgoCD clusters:
+-------------------------------------------------------------
+
+List clusters
+	terminal --> argocd cluster list
+
+	# result:
+	SERVER                               NAME      VERSION  STATUS      MESSAGE  PROJECT
+	https://cluster2-control-plane:6443  external  1.34     Successful
+	https://kubernetes.default.svc       local     1.34     Successful
+
+
+
+Argo Rollouts - The Idea 
+========================
+
 What is Argo-rollouts?
 - kubernetes controller and set-up CRDs which provide advance deployment capabilities such as blue-green deployment and canary deployment and progres of delivered features in Kubernetes. These are the most important features in Argo-rollouts.
 
@@ -169,7 +211,6 @@ Argo-rollouts Installation
 Installation documentation - https://argo-rollouts.readthedocs.io/en/stable/installation/
 
 
-
 Step 1:
 -------
 install.yaml - Standard installation method.
@@ -202,7 +243,6 @@ install.yaml - Standard installation method.
 	Confirm components installtion
 		terminal --> kubectl get all -n argo-rollouts
 
-
 		# result:
 		NAME                                 READY   STATUS    RESTARTS   AGE
 		pod/argo-rollouts-65c8945cc7-zchlm   1/1     Running   0          4m40s
@@ -217,42 +257,120 @@ install.yaml - Standard installation method.
 		replicaset.apps/argo-rollouts-65c8945cc7   1         1         1       4m40s
 
 
-
 Step 2:
 -------
 Kubectl Plugin Installation on Windows with shell
 -------------------------------------------------
-1. Open Power Shell profile and set the function below and alias below. Thi swill run docker container with the plugin every time we use it.
+
+Install kargo dashboard
+	terminal --> kubectl apply -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/dashboard-install.yaml
+
+	# result:
+	serviceaccount/argo-rollouts-dashboard created
+	clusterrole.rbac.authorization.k8s.io/argo-rollouts-dashboard created
+	clusterrolebinding.rbac.authorization.k8s.io/argo-rollouts-dashboard created
+	service/argo-rollouts-dashboard created
+	deployment.apps/argo-rollouts-dashboard created
+
+	Foreward port for kargo dashboard
+		terminal --> kubectl port-forward -n argo-rollouts svc/argo-rollouts-dashboard 3100:3100
+
+
+Set additional service dashboard-ingress.yaml for dashboard to access it.
+
+dashboard-ingress.yaml
+-----------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argo-rollouts-dashboard
+  namespace: argo-rollouts
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: rollouts.localhost
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: argo-rollouts-dashboard
+            port:
+              number: 3100
+-----------------------------------------------------
+
+Create the service
+	terminal --> kubectl apply -f dashboard-ingress.yaml
+
+	# result: ingress.networking.k8s.io/argo-rollouts-dashboard created
+
+
+
+Confirm components installtion
+	terminal --> kubectl get all -n argo-rollouts
+
+
+	# result:
+	NAME                                           READY   STATUS    RESTARTS   AGE
+	pod/argo-rollouts-65c8945cc7-9rg85             1/1     Running   0          4h13m
+	pod/argo-rollouts-dashboard-5659ccf55b-pxvgh   1/1     Running   0          123m
+
+	NAME                              TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+	service/argo-rollouts-dashboard   ClusterIP   10.96.41.223   <none>        3100/TCP   123m
+	service/argo-rollouts-metrics     ClusterIP   10.96.126.95   <none>        8090/TCP   4h13m
+
+	NAME                                      READY   UP-TO-DATE   AVAILABLE   AGE
+	deployment.apps/argo-rollouts             1/1     1            1           4h13m
+	deployment.apps/argo-rollouts-dashboard   1/1     1            1           123m
+
+	NAME                                                 DESIRED   CURRENT   READY   AGE
+	replicaset.apps/argo-rollouts-65c8945cc7             1         1         1       4h13m
+	replicaset.apps/argo-rollouts-dashboard-5659ccf55b   1         1         1       123m
+
+
+Add host address to Windows host list
+	- Open power Shell as Admin
+		terminal --> notepad C:\Windows\System32\drivers\etc\hosts
+		- add '127.0.0.1 rollouts.localhost'
+		- save the file and exit
+
+
+STEP 3 
+------
+
+Download kargo-dashboards binary for Windows
+	terminal --> iwr https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-windows-amd64 -OutFile kubectl-argo-rollouts.exe
+
+Create folder
+terminal --> mkdir ~/bin -Force
+Move-Item ./kubectl-argo-rollouts.exe ~/bin/kubectl-argo-rollouts.exe
+
+Add the binary to PATH
+	terminal --> [Environment]::SetEnvironmentVariable("Path", $env:Path + ";$env:USERPROFILE\bin", "User")
+
+
+Set Alias for kubectl-argo-rollouts:
+------------------------------------
+Open Power Shell profile AS ADMIN and set alias below. 
 	terminal --> code $PROFILE
 
 -----------------------------------------------------
 # Alias for kubectl
 Set-Alias -Name k -Value kubectl
 
-function kubectl-argo-rollouts {
-    # Check if the command is 'dashboard'
-    if ($args[0] -eq "dashboard") {
-        # Run with port mapping for dashboard
-        docker run --rm -it `
-            -v ${env:USERPROFILE}\.kube:/root/.kube `
-            -p 3100:3100 `
-            quay.io/argoproj/kubectl-argo-rollouts:v1.8.3 dashboard
-    } else {
-        # Run normally for other commands
-        docker run --rm -it `
-            -v ${env:USERPROFILE}\.kube:/root/.kube `
-            quay.io/argoproj/kubectl-argo-rollouts:v1.8.3 @args
-    }
-}
 # Alias for kubectl-argo-rollouts
-Set-Alias -Name kargo -Value kubectl-argo-rollouts
+Set-Alias -Name kargo -Value kubectl-argo-rollouts	# added
 -----------------------------------------------------
 
-2. Restart power shell and execute commands
+Restart power shell 
+Load Power Shell profile
 	terminal --> . $PROFILE
-	terminal --> kargo version
 
-	# this will run docker conatiner with the plugin. This container will work only when we use argo rollouts.
+Verify binary installation
+	termimnal --> kubectl-argo-rollouts version
+	or
+	terminal --> kargo version
 
 # example result: 
 kubectl-argo-rollouts: v1.8.3+49fa151
@@ -264,33 +382,11 @@ kubectl-argo-rollouts: v1.8.3+49fa151
   Platform: linux/amd64
 
 
-
-Install Kubectl Plugin Installation on Linux 
---------------------------------------------
-1. Download binary packages
-	terminal --> curl -LO https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-linux-amd64
-
-2. Give executable rights
-	terminal --> chmod +x ./kubectl-argo-rollouts-linux-amd64
-
-3. Move the binary into your PATH
-	terminal --> sudo mv ./kubectl-argo-rollouts-linux-amd64 /usr/local/bin/kubectl-argo-rollouts
-
-4. Confirm installation
-	terminal --> kubectl argo rollouts version
+We can now access Kargo dashboard at http://rollouts.localhost:32073/
 
 
-
-Connect tot Argo Rollouts Dashboard
------------------------------------
-	terminal --> kargo dashboard			
-	or
-	terminal --> kubectl argo rollouts dashboard
-
-We can now access Kargo dashboard at http://localhost:3100/rollouts
-
-
-
+Open Kargo Dashboard on http://rollouts.localhost:32073/
+      			--------------------------------
 
 
 

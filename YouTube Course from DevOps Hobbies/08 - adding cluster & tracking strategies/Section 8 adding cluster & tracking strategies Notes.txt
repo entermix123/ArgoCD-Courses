@@ -409,6 +409,7 @@ data "kubernetes_secret_v1" "argocd_manager_secret" {		# retrieve external respo
 resource "argocd_cluster" "new_cluster" {	# ArgoCD cluster
   provider = argocd.argocd_server		# alias of our current ArgoCD server - "lcaolhost:32074"
   server = var.new_cluster_server_addr		# new cluster IP address
+  name     = "external"
 
   config {	# token from kubernetes_service_account_v1's (argocd_manager_sa) kubernetes_secret_v1 (argocd_manager_secret)
     bearer_token = "${lookup(data.kubernetes_secret_v1.argocd_manager_secret.data, "token")}"

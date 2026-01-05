@@ -463,6 +463,9 @@ nodes:
 - role: worker
 -------------------------------------------------
 
+
+We will use nginx ingresscontroller - option 2
+
 2. Create cluster 
 	terminal --> kind create cluster --config C:\path\to\file\kind-config-nginx.yaml --image kindest/node:v1.34.0
 
@@ -525,7 +528,7 @@ Check existing taints
 INSTALL ARGOCD WITH HELM
 ------------------------
 
-We wil go true 2 types of Helm ArgoCD installations
+We will go over 2 types of Helm ArgoCD installations
 	I. 	Modifying Helm Chart and overwriting argocd server-service to NodePort - values.yaml
 	II. 	Modifying Helm Chart and Nginx ingress-controller and overwriting ingress controller - values-nginx.yaml
 
@@ -724,7 +727,7 @@ Find initial password for ArgoCD:
 Open ArgoCD UI:
 
 In case we are using official Helm chart:
-- Open braowser and go to localhost:32073
+- Open braowser and go to localhost:32074
 - Press Advanced and accept the risk and continue
 
 In case we are using nginx ingress controller
@@ -844,11 +847,6 @@ Verify logging into ArgoCD server
 # result:
 SERVER                          NAME        VERSION  STATUS   MESSAGE                                                  PROJECT
 https://kubernetes.default.svc  in-cluster           Unknown  Cluster has no applications and is not being monitored.  
-
-
-
-
-
 
 
 We will go over Kubernetes managment with VMWare and Vagrant.
