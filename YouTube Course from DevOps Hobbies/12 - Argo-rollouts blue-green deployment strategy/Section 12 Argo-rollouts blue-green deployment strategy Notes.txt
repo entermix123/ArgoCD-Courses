@@ -41,8 +41,8 @@ Connect to the Node with ArgoCD CLI
 	terminal --> password
 
 
-3. We should have 2 running and connected to ArgoCD clusters:
--------------------------------------------------------------
+3. We should have atleast one running and connected to ArgoCD cluster:
+----------------------------------------------------------------------
 
 List clusters
 	terminal --> argocd cluster list
