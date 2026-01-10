@@ -14,44 +14,34 @@ Notes Lab repo - https://github.com/entermix123/ArgoCD-Labs
 Killercoda exercise platform - https://killercoda.com/mabusaa/course/argocd-endusers-scenarios
 
 
-
 Prerequisites
 =============
 
-1. We should have installed and running ArgoCD and Kargo (kubectl-argo-rollouts) on one of our clusters.
---------------------------------------------------------------------------------------------------------
-
-We can find cluster and ArgoCD installation instruction in section "02 - Setting-up ArgoCD" and "08 - adding cluster & tracking strategies".
-
-We can find Kargo (kubectl-argo-rollouts) installation instruction in section "11 - Argo-rollouts overview & installation/Argo-rollouts Installation"
-
-
-2. Login to ArgoCD CLI:
------------------------
-
-Find the password of admin user of ArgoCD
-	powershell terminal --> k -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | ForEach-Object { [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($_)) }
-
-	# result: password
-
-
-Connect to the Node with ArgoCD CLI
-	terminal --> argocd login argocd.localhost:32074 --insecure --grpc-web --username admin --password <password>
-	or
-	terminal --> argocd login argocd.localhost:32074 --insecure --grpc-web --username admin
-	terminal --> password
-
-
-3. We should have atleast one running and connected to ArgoCD cluster:
-----------------------------------------------------------------------
+We should have atleast one running cluster:
+-------------------------------------------
 
 List clusters
-	terminal --> argocd cluster list
+	terminal --> kubectl config get-clusters
+
+	# result: 
+	kind-kind
+	cluster2
+
+List contexts
+	terminal --> kubectl config get-contexts
 
 	# result:
-	SERVER                               NAME      VERSION  STATUS      MESSAGE  PROJECT
-	https://cluster2-control-plane:6443  external  1.34     Successful
-	https://kubernetes.default.svc       local     1.34     Successful
+	CURRENT   NAME            CLUSTER         AUTHINFO        NAMESPACE
+	          kind-cluster2   kind-cluster2   kind-cluster2
+	*         kind-kind       kind-kind       kind-kind       			# current cluster
+
+
+We should have installed Argo Rollouts 
+--------------------------------------
+Section 11. Install Argo Rollouts on main cluster from the installtion guide below
+
+
+We can find prerequisites installation instructions here - https://github.com/entermix123/ArgoCD-Labs/blob/main/00-Install%20Guide/Kubernetes%20Kind%20ArgoCD%20Install%20Guide%20for%20Windows.txt
 
 
 
