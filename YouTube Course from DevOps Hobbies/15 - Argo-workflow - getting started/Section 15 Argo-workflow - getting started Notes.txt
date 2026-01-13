@@ -442,8 +442,8 @@ INSTALL ARGO CLI
 
 
 
-IMPORTANT FOR ARGO WORKFLOW FEATURES
-------------------------------------
+IMPORTANT FOR ARGO WORKFLOWS FEATURES
+-------------------------------------
 
 The most important object for argo workflows is serviecc account. 
 
