@@ -666,6 +666,7 @@ Create 'argo-demo' folder and clone the 2 folders from the repo:
 	|--argo-rollouts
 	   |-- nginx-ingress.yaml
 	   |-- nginx-rollouts.yaml
+	   |-- webhook-ingress.yaml
 
 2.3. Push the fils
 	terminal --> git add .
@@ -1148,6 +1149,8 @@ spec:
 ROLLOUT
 -------
 
+Every resource in this folder will be automatically created by ArgoCD when we deploy aour application !!!
+
 argo-rollouts
    |-- nginx-rollouts.yaml
 -------------------------------------------------
@@ -1218,8 +1221,36 @@ spec:
               number: 8080
 -------------------------------------------------
 
-
+This is the ingress that expose the application.
 After the rollout is created the app should be accessabel on http://argo.demo:32073/
+
+
+
+
+argo-rollouts
+   |-- webhook-ingress.yaml
+-------------------------------------------------
+# This ingress is matching the Docker internal network with exact path
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argo-events-ingress
+  namespace: argo-events
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /push
+        pathType: Exact
+        backend:
+          service:
+            name: ci-eventsource-svc
+            port:
+              number: 12000
+-------------------------------------------------
+
+This ingress expose the webhook triggered from the push event in the GitLab repository and new workflow starts.
 
 
 
@@ -1400,7 +1431,7 @@ Commit changes
 The change in the repostiory will trigger the webhook and new workflow will start.
 
 After the workflow finishes the used image will be changed in the rollout.
-We have to syn the application if not set to autoamtic sync! 
+The application will autoamtic sync after 3 minutes.
 The application will start update (canary deployment will start).
 
 We can fooolow the rollout and promote the first step on http://rollouts.localhost:32073/rollouts/ or with Argo UI in the argo-demo namepsace.
