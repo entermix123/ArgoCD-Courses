@@ -176,12 +176,12 @@ This is the official repo for Argo Workflows Helm chart
 We are going to use ingress controller so we need to modify values.yaml file used with the chart.
 	- Open the values.yaml - https://github.com/argoproj/argo-helm/blob/main/charts/argo-workflows/values.yaml
 	- Search for 'server' and on line 514 we can find the section. On line 686 we can find 'ingress' subsection.
-		- The 'ingress' controller fucntionality is disabled by default
+		- The 'ingress' controller functionality is disabled by default
 
 
 We will overwrite needed fields for this section in our local argo-workflows-values.yaml file and use it to deploy the Argo Workflow Chart.
 
-We also add filed 'extraArgs:' to manage authentication mode from '--auth-mode=client' (default) to '--auth-mode=server'. 
+We also add field 'extraArgs:' to manage authentication mode from '--auth-mode=client' (default) to '--auth-mode=server'. 
 This will avoid requirements for bearer authentication token when we connect to Argo Workflows.
 We can also overwrite and use 'server/NodePort' section for external access (not in this case).
 
@@ -223,7 +223,7 @@ Confirm repo addition
 	argo    https://argoproj.github.io/argo-helm
 
 
-Deploy Aego Workflows Helm Chart
+Deploy Argo Workflows Helm Chart
 	terminal --> helm install my-workflow argo/argo-workflows -n argo -f argo-workflows-values.yaml
 
 	# helm 					- common helm command
@@ -263,25 +263,25 @@ List resources deployed in 'argo' namespace
 	replicaset.apps/my-workflow-argo-workflows-workflow-controller-58864d5898   1         1         1       16m
 
 
+Create rolebinding for admin role in 'argo' namespace
+	terminal --> k create rolebinding default-admin --clusterrole=admin --serviceaccount=argo:default -n argo
 
-Add host address to Windows host list on Windows
-	- Open power Shell as Admin
+	# result: rolebinding.rbac.authorization.k8s.io/default-admin created
+
+
+Add host address to Windows host list
+	- Open PowerShell as Admin
 		terminal --> notepad C:\Windows\System32\drivers\etc\hosts
 		- add '127.0.0.1 argo-workflows.localhost'
 		- save the file and exit
 
-Add host address to Windows host list on Linux
-	terminal --> sudo vim etc/hosts
+Add host address to Linux host list
+	terminal --> sudo vim /etc/hosts
 	- Add '127.0.0.1 argo-workflows.localhost'
 	- save changes and exit - escape, :wq!, enter
 
 
-We can now access our Argo Worflows UI on https://argo-workflows.localhost:32074/
-
-
-I receive this error:
-
-Failed to load version/info Error: {"code":16,"message":"token not valid. see https://argo-workflows.readthedocs.io/en/latest/faq/"}
+We can now access our Argo Workflows UI on https://argo-workflows.localhost:32074/
 
 
 
@@ -614,7 +614,7 @@ We can check if the comfigmap we configured to be created in step D is present o
 	NAME                                                       DATA   AGE
 	argo-wf-resource-template-cm-f7j5s                         1      17m	# the configmap is created
 
-	Delete the configmap to clen the 'argo' namespace of external objects
+	Delete the configmap to clean the 'argo' namespace of external objects
 		terminal --> k delete cm argo-wf-resource-template-cm-f7j5s -n argo
 
 		# result: configmap "argo-wf-resource-template-cm-f7j5s" deleted from argo namespace
