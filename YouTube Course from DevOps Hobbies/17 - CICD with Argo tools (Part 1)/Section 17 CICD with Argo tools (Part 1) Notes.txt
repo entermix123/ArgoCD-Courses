@@ -321,7 +321,7 @@ spec:
 After the change Argo Workflows will push this commit into my GitOps repository.
 
 
-We use ingress controller to expose the application.
+We use ingress resource to expose the application.
 
 nginx-ingress.yaml
 -------------------------------------------------
@@ -969,7 +969,7 @@ spec:
 -------------------------------------------------
 
 
-We are using ingress controller to expose the application locally
+We are using ingress resource to expose the application locally
 
 nginx-ingress.yaml
 -------------------------------------------------

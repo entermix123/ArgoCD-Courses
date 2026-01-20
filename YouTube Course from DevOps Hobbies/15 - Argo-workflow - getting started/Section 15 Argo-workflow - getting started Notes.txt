@@ -347,7 +347,7 @@ Confirm successfull installation
 	replicaset.apps/workflow-controller-6c84fcfb6   1         1         1       52s
 
 
-Set ingress controller for permanent access without port forwarding for test purposes
+Set ingress resource for permanent access without port forwarding for test purposes
 
 
 argo-workflows-ingress.yaml
@@ -375,7 +375,7 @@ spec:
               number: 2746
 -------------------------------------------------
 
-Deploy the argo-workflows-ingress.yaml controller
+Deploy the argo-workflows-ingress.yaml resource
 	terminal --> k apply -f argo-workflows-ingress.yaml
 
 	# result: ingress.networking.k8s.io/argo-workflows created

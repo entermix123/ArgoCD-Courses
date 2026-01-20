@@ -140,7 +140,7 @@ INSTALL MINIO WIHT HELM
 	# result: secret/my-minio-cred created
 
 
-4. Set Ingress controller for MinIO to be externally accessed 
+4. Set Ingress resource for MinIO to be externally accessed 
 
 minio-ingress.yaml
 -------------------------------------------------
@@ -1251,6 +1251,7 @@ spec:
 -------------------------------------------------
 
 This ingress expose the webhook triggered from the push event in the GitLab repository and new workflow starts.
+This ingress is not used if the GitLab server is not running on the same Docker network.
 
 
 
@@ -1441,6 +1442,31 @@ We can fooolow the rollout and promote the first step on http://rollouts.localho
 
 After the rollout is finished and the application is running with the new version we can test it on http://argo.demo:32073/
 We should see message 'Welcome to My Website, Version 2.0'
+
+
+If we delete the app and we redeploy it we need to recreate the webhook also because of the flag 'deleteHookOnFinish: true' in the event-source.yaml manifest.
+	- Find ci deployment
+		terminal --> k get deploy -n argo-events
+
+		# result:
+		NAME                   READY   UP-TO-DATE   AVAILABLE   AGE
+		ci-eventsource-p7bcl   1/1     1            1           21h	# target deployment
+		ci-sensor-24b44        1/1     1            1           8h
+		controller-manager     1/1     1            1           30h
+		events-webhook         1/1     1            1           30h
+
+	- Restart the deployment	
+		terminal --> kubectl rollout restart deploy/ci-eventsource-p7bcl -n argo-events
+
+		# result: deployment.apps/ci-eventsource-p7bcl restarted
+
+	Now the webhook is recreated and we can trigger workflows again with push events.
+		
+
+
+
+
+
 
 
 
